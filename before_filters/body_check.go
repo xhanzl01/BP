@@ -4,10 +4,7 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"regexp"
 )
-
-const ethWalletRegex = "0x[a-fA-F0-9]{40}"
 
 // ValueCheck takes interface as the param from request body and bool which is set to true, if param is mandatory and
 // must be set in request body
@@ -30,8 +27,8 @@ func CheckAddress(val interface{}, isMandatory bool) (ok bool, err error) {
 	return true, nil
 }
 
-// RegexHex checks whether val is a valid hex number
-func RegexHex(val interface{}, isMandatory bool) (ok bool, err error) {
+// CheckHex checks whether val is a valid hex number
+func CheckHex(val interface{}, isMandatory bool) (ok bool, err error) {
 	v, ok := val.(string)
 	if !ok {
 		if isMandatory {
@@ -39,7 +36,13 @@ func RegexHex(val interface{}, isMandatory bool) (ok bool, err error) {
 		}
 		return true, nil
 	}
-	return regexp.MatchString(ethWalletRegex, v)
+
+	_, err = hexutil.Decode(v)
+	if err != nil {
+		return false, fmt.Errorf("wrong hex format")
+	}
+
+	return true, nil
 }
 
 // CheckBlockParameter takes whole Block Parameter param and checks whether the form of each part is valid
@@ -52,13 +55,18 @@ func CheckBlockParameter(val interface{}, isMandatory bool) (ok bool, err error)
 		return true, nil
 
 	}
-	_, err = hexutil.Decode(v)
+	intv, err := hexutil.DecodeUint64(v)
 	if err != nil {
 		if v == "latest" || v == "earliest" || v == "pending" {
 			return true, nil
 		}
 		return false, fmt.Errorf("invalid block parameter format")
 	}
+	//topBlock :=
+	if intv > getTopBlock() {
+		return false, fmt.Errorf("invalid number of block")
+	}
+
 	return true, nil
 }
 
@@ -111,22 +119,22 @@ func CheckTransactionCallObject(val interface{}, isMandatory bool) (ok bool, err
 		return false, err
 	}
 
-	ok, err = RegexHex(m["gas"], false)
+	ok, err = CheckHex(m["gas"], false)
 	if !ok {
 		return false, err
 	}
 
-	ok, err = RegexHex(m["gasPrice"], false)
+	ok, err = CheckHex(m["gasPrice"], false)
 	if !ok {
 		return false, err
 	}
 
-	ok, err = RegexHex(m["value"], false)
+	ok, err = CheckHex(m["value"], false)
 	if !ok {
 		return false, err
 	}
 
-	ok, err = RegexHex(m["data"], false)
+	ok, err = CheckHex(m["data"], false)
 	if !ok {
 		return false, err
 	}
@@ -135,6 +143,7 @@ func CheckTransactionCallObject(val interface{}, isMandatory bool) (ok bool, err
 
 // CheckFilterObject takes the whole Filter Object param and checks whether the form of each part is valid
 func CheckFilterObject(val interface{}, isMandatory bool) (ok bool, err error) {
+	//TODO cannot specify both BlockHash and FromBlock/ToBlock,
 	m, ok := val.(map[string]interface{})
 	if !ok {
 		if isMandatory {

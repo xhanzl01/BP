@@ -161,8 +161,8 @@ var ProxyRequestRoutes = map[string]ProxyRequestType{
 		},
 	},
 	"getLogs": {
-		minParams:     0,
-		maxParams:     0,
+		minParams:     1,
+		maxParams:     1,
 		OutputFilters: []OutputFilter{},
 		InputParameters: []InputParameter{
 			{
@@ -172,6 +172,7 @@ var ProxyRequestRoutes = map[string]ProxyRequestType{
 			},
 		},
 	},
+	// TODO params dont match with documentation
 	"getStorageAt": {
 		minParams:     1,
 		maxParams:     2,
@@ -197,12 +198,12 @@ var ProxyRequestRoutes = map[string]ProxyRequestType{
 			{
 				name:        "block_hash",
 				isMandatory: true,
-				check:       RegexHex,
+				check:       CheckHex,
 			},
 			{
 				name:        "transaction_index_position",
 				isMandatory: true,
-				check:       RegexHex,
+				check:       CheckHex,
 			},
 		},
 	},
@@ -219,7 +220,7 @@ var ProxyRequestRoutes = map[string]ProxyRequestType{
 			{
 				name:        "transaction_index_position",
 				isMandatory: true,
-				check:       RegexHex,
+				check:       CheckHex,
 			},
 		},
 	},
@@ -272,12 +273,12 @@ var ProxyRequestRoutes = map[string]ProxyRequestType{
 			{
 				name:        "block_hash",
 				isMandatory: true,
-				check:       RegexHex,
+				check:       CheckHex,
 			},
 			{
 				name:        "uncle_index_position",
 				isMandatory: true,
-				check:       RegexHex,
+				check:       CheckHex,
 			},
 		},
 	},
@@ -294,7 +295,7 @@ var ProxyRequestRoutes = map[string]ProxyRequestType{
 			{
 				name:        "uncle_index_position",
 				isMandatory: true,
-				check:       RegexHex,
+				check:       CheckHex,
 			},
 		},
 	},
